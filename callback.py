@@ -124,12 +124,26 @@ def register_racial_callbacks(app, df, nta):
         #dff = dff[dff["Year"] == option_slctd]
         #dff = dff[dff["Affected by"] == "Varroa_mites"]
 
+        self_color_scale = [
+            [0, "rgb(215,48,39)"], 
+            [.02, "rgb(244,109,67)"], 
+            [.06, "rgb(253,174,97)"],
+            [.1, "rgb(166,206,227)"],
+            [.2000, "rgb(31,120,180)"],
+            [.3000, "rgb(178,223,138)"],
+            [.5000, "rgb(51,160,44)"],
+            [.7000, "rgb(251,154,153)"],
+            [.9000, "rgb(227,26,28)"],
+            [1, "green"]
+        ]
+
         fig = px.choropleth_mapbox(df, geojson=nta, color=df[option_slctd],
                             locations=df["GeoID"], featureidkey="properties.NTA2020",
                             center={"lat": 40.7128, "lon": -74.0060},#-74.1052443755828, 40.5731022653906
                             mapbox_style="carto-positron", zoom=9, 
                             hover_data=[option_slctd, 'GeoID', 'Name'],
                             #custom_data=[]
+                            color_continuous_scale=self_color_scale
                             )
 
         fig.update_layout(clickmode='event+select', margin={"r":0,"t":0,"l":0,"b":0})

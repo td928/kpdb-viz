@@ -11,6 +11,7 @@ def create_socioeconomic_tab(app):
 
     tab = html.Div(
         [
+            dcc.Graph(id='units-bar', figure={}),
             dcc.Dropdown(id="phasing",
             options=[
                 {"label": "Housing Database 2010 - 2020", "value": 'hdb_2010_2020'},
