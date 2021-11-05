@@ -5,7 +5,9 @@ from callback import register_socioeconomic_callbacks
 
 def create_socioeconomic_tab(app):
 
-    df = pd.read_csv('C:/Users/T_Du/Workspace/KPDB/kpdb-viz/socioeconomic.csv')
+    #df = pd.read_csv('C:/Users/T_Du/Workspace/KPDB/kpdb-viz/socioeconomic.csv')
+
+    df = pd.read_csv('socioeconomic.csv')
 
     register_socioeconomic_callbacks(app, df)
 

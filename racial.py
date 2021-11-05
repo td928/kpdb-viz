@@ -13,7 +13,9 @@ from callback import register_racial_callbacks
 
 def create_racial_tab(app):
 
-    df = pd.read_csv('C:/Users/T_Du/Workspace/KPDB/kpdb-viz/kpdb_w_pop.csv')
+    #df = pd.read_csv('C:/Users/T_Du/Workspace/KPDB/kpdb-viz/kpdb_w_pop.csv')
+
+    df = pd.read_csv('kpdb_w_pop.csv')
 
     with urlopen('https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Neighborhood_Tabulation_Areas_2020/FeatureServer/0/query?where=1=1&outFields=*&outSR=4326&f=pgeojson') as response:
         nta = json.load(response)
