@@ -143,7 +143,7 @@ def register_racial_callbacks(app, df, nta):
                             mapbox_style="carto-positron", zoom=9, 
                             hover_data=[option_slctd, 'GeoID', 'Name'],
                             #custom_data=[]
-                            color_continuous_scale=self_color_scale
+                            #color_continuous_scale='Bluered_r'
                             )
 
         fig.update_layout(clickmode='event+select', margin={"r":0,"t":0,"l":0,"b":0})
@@ -338,3 +338,23 @@ def register_racial_callbacks(app, df, nta):
         fig.update_traces(textposition='outside',) #textinfo='label+value')
 
         return fig
+
+def register_sources_callbacks(app):
+
+    @app.callback(
+        Output(component_id='', component_property='figure'),
+        Input()
+    )
+    def choropleth_by_source():
+
+        fig = px.choropleth_mapbox(tfed, geojson=nta, color=phasing,
+                        locations="NTA2020", featureidkey="properties.NTA2020",
+                        center={"lat": 40.7128, "lon": -74.0060},#-74.1052443755828, 40.5731022653906
+                        mapbox_style="carto-positron", zoom=9,
+                        hover_data=[phasing, 'NTA2020', 'NTAName'])
+
+        fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+
+        return fig
+
+
