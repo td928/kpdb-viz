@@ -53,6 +53,7 @@ def create_racial_tab(app):
                             mapbox_style="carto-positron", zoom=9, 
                             hover_data=[option_slctd, 'GeoID', 'Name'],
                             #custom_data=[]
+                            title="Housing Units By 2020 Neighborhood Tabular Area",
                             color_continuous_scale=self_color_scale
                             )
 
@@ -74,7 +75,7 @@ def create_racial_tab(app):
 
             df_bar = pd.DataFrame(data={'value': temp.array[1:], 'variable': temp.index[1:]}) # create the dataframe for multiple selection 
 
-            fig = px.bar(df_bar, x='variable', y='value', color='variable', text='value', title='Total Units by Phasing Assumption Citywide')
+            fig = px.bar(df_bar, x='variable', y='value', color='variable', text='value', title='Known Housing Units by Phasing Assumption Citywide')
 
         
         else:
@@ -85,7 +86,7 @@ def create_racial_tab(app):
 
             df_bar = pd.DataFrame(data={'value': temp.array[1:], 'variable': temp.index[1:]}) # create the dataframe for multiple selection 
 
-            fig = px.bar(df_bar, x='variable', y='value', color='variable', text='value', title='Total Units by Phasing Assumption in NTA ' + ' ,'.join(nta_slct))
+            fig = px.bar(df_bar, x='variable', y='value', color='variable', text='value', title='Known Housing Units by Phasing Assumption in NTA ' + ' ,'.join(nta_slct))
 
         return fig
 
@@ -166,9 +167,10 @@ def create_racial_tab(app):
 
     @app.callback(
         Output(component_id='percent-change-chart', component_property='figure'),
-        Input(component_id='phasing', component_property='value')
+        [Input(component_id='phasing', component_property='value'),
+        Input(component_id='choro-map', component_property='selectedData')]
     )
-    def update_percent_change_line_chart(option_slctd):
+    def update_percent_change_line_chart(option_slctd, slct_data):
 
         #cols = [col for col in df.columns if '_Percent' in col] + ['Name']
         #cols = ['Name', 'Hsp1_Percent','WNH_Percent', 'BNH_Percent', 'ANH_Percent', 'ONH_Percent', 'TwoPlNH_Percent']
@@ -176,16 +178,32 @@ def create_racial_tab(app):
         cols = ['Name', 'Hsp_PCh',  'WNH_PCh', 'BNH_PCh', 'ANH_PCh', 'ONH_PCh', 'NH2pl_PCh']
 
         df_percent = df.sort_values(by=option_slctd, ascending=False)[cols] #+ [option_slctd]]
-        
-        fig = px.line(pd.melt(df_percent, id_vars=['Name']), x='Name', y='value', color='variable',
-                color_discrete_map={'BNH_PCh':'royal blue',
-                                            'Hsp_PCh':'purple',
-                                            'WNH_PCh':'orange',
-                                            'NH2pl_PCh':'turquoise',
-                                            'ANH_PCh': 'red',
-                                            'ONH_PCh': 'green'})
 
-        fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+        # print(df_percent.head())
+        nta_slct = slct_data['points'][0]['customdata'][2]
+        df_percent_nta = df_percent.loc[df_percent.Name == nta_slct]
+
+        print(df_percent_nta.head())
+        fig = px.bar(
+            pd.melt(df_percent_nta, id_vars=['Name']), 
+            x='Name', 
+            y='value', 
+            color='variable',
+            color_discrete_map={
+                'BNH_PCh':'royal blue',
+                'Hsp_PCh':'purple',
+                'WNH_PCh':'orange',
+                'NH2pl_PCh':'turquoise',
+                'ANH_PCh': 'red',
+                'ONH_PCh': 'green'
+            },
+            barmode="group"
+        )
+
+        fig.update_layout(
+            margin={"r":0,"t":0,"l":0,"b":0},
+            title="Percentage Change By Racial Identities By 2020 Neighborhood Tabulation Area"
+        )
 
         return fig
 
@@ -249,7 +267,8 @@ def create_racial_tab(app):
 
         return fig
 
-    tab = html.Div([
+    tab = html.Div(
+        [
 
         #dbc.Alert("This is a primary alert", color="primary"),
         #html.H1("KPDB with Dash", style={'text-align': 'center'}),
@@ -264,8 +283,9 @@ def create_racial_tab(app):
                                 {"label": "After 10 Years", "value": 'after_10_years'}],
                             multi=False,
                             value='within_5_years',
-                            style={'width': "40%", 'display': 'inline-block'}
+                            style={'width': "100%", 'display': 'inline-block'}
                 ),
+                dcc.Graph(id='choro-map', figure={}, className='twelve columns'),
                 dcc.Dropdown(id='census-select',
                     options=[
                         {"label": "Show 2020 Census Results", "value": 2020},
@@ -273,13 +293,14 @@ def create_racial_tab(app):
                     ],
                     multi=False,
                     value=2020,
-                    style={'width': '40%', 'display': 'inline-block'}
+                    style={'width': '100%', 'display': 'inline-block'}
                 ),
                 #html.Div(id='output_container', children=[]),
-                html.Br(),
+                # html.Br(),
 
-                dcc.Graph(id='choro-map', figure={}, className='six columns'),
+                # dcc.Graph(id='choro-map', figure={}, className='six columns'),
                 dcc.Graph(id='pie-chart', figure={}, className='five columns'),
+                dcc.Graph(id='change-bar', figure={}, className='five columns'),
                 html.Br()
 
             ]
@@ -287,8 +308,9 @@ def create_racial_tab(app):
         html.Br(),
         html.Div(
             [
-                dcc.Graph(id='percent-change-chart', figure={}, className='seven columns'),
-                dcc.Graph(id='change-bar', figure={}, className='five columns')
+                html.Br(),
+                dcc.Graph(id='percent-change-chart', figure={}, className='twelve columns'),
+                # dcc.Graph(id='change-bar', figure={}, className='five columns')
             ]
         )
     ])
